@@ -1,4 +1,4 @@
-package com.dai.llew.kalah;
+package com.dai.llew.kalah.models;
 
 import static java.text.MessageFormat.format;
 
