@@ -1,6 +1,6 @@
 package com.dai.llew.kalah.responses;
 
-import com.dai.llew.kalah.models.Game;
+import com.dai.llew.kalah.game.Game;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Map;
@@ -23,6 +23,7 @@ public class GameStatusResponse {
         this.uri = format("http://localhost:8080/games/{0}", gameID);
 
         this.pits = game.getPits()
+                .getAsMap()
                 .entrySet()
                 .stream()
                 .collect(Collectors.toMap(

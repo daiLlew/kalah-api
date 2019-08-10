@@ -1,4 +1,4 @@
-package com.dai.llew.kalah.store.exceptions;
+package com.dai.llew.kalah.game.exceptions;
 
 public class NotFoundException extends RuntimeException {
 

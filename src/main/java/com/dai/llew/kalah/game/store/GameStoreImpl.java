@@ -1,7 +1,7 @@
-package com.dai.llew.kalah.store;
+package com.dai.llew.kalah.game.store;
 
-import com.dai.llew.kalah.models.Game;
-import com.dai.llew.kalah.store.exceptions.NotFoundException;
+import com.dai.llew.kalah.game.Game;
+import com.dai.llew.kalah.game.exceptions.NotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

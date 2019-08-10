@@ -1,19 +1,14 @@
-package com.dai.llew.kalah.models;
+package com.dai.llew.kalah.game;
 
 import static java.text.MessageFormat.format;
 
 public class Pit {
 
-    private static final int PLAYER_ONE_HOUSE_INDEX = 7;
-    private static final int PLAYER_TWO_HOUSE_PIT_ID = 14;
-
     private int id;
     private int stoneCount;
-    private boolean isHouse;
 
     public Pit(int id) {
         this.id = id;
-        this.isHouse = (PLAYER_ONE_HOUSE_INDEX == id) || (PLAYER_TWO_HOUSE_PIT_ID == id);
         this.stoneCount = 6;
     }
 
@@ -21,16 +16,16 @@ public class Pit {
         return this.id;
     }
 
-    public boolean isHouse() {
-        return this.isHouse;
-    }
-
     public int getStoneCount() {
         return this.stoneCount;
     }
 
-    public void addStone() {
-        this.stoneCount++;
+    public boolean addStone(Player player) {
+        if (canPlaceStone(player)) {
+            this.stoneCount++;
+            return true;
+        }
+        return false;
     }
 
     public int takeStones() {
@@ -41,5 +36,9 @@ public class Pit {
 
     public String toString() {
         return format("({0},{1})", id, stoneCount);
+    }
+
+    private boolean canPlaceStone(Player player) {
+        return id != player.oponentHouseID();
     }
 }
