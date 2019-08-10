@@ -21,6 +21,9 @@ public class GameStoreImpl implements GameStore {
 
     public GameStoreImpl() {
         this.store = new HashMap<>();
+
+        // TODO REMOVE ONCE BEFORE SUBMITTING
+        saveGame(new Game(getNextGameID()));
     }
 
     @Override

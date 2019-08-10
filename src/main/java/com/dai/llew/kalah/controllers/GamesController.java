@@ -1,6 +1,8 @@
 package com.dai.llew.kalah.controllers;
 
 import com.dai.llew.kalah.models.Game;
+import com.dai.llew.kalah.responses.GameCreatedResponse;
+import com.dai.llew.kalah.responses.GameStatusResponse;
 import com.dai.llew.kalah.store.GameStore;
 import com.dai.llew.kalah.store.exceptions.NotFoundException;
 import org.slf4j.Logger;
@@ -26,11 +28,12 @@ public class GamesController {
 
     @PostMapping("/games")
     @ResponseStatus(HttpStatus.CREATED)
-    public Game newGame() {
+    public GameCreatedResponse newGame() {
         long id = gameStore.getNextGameID();
         Game game = new Game(id);
         gameStore.saveGame(game);
-        return game;
+
+        return new GameCreatedResponse(id);
     }
 
     @GetMapping("/games")
@@ -39,11 +42,18 @@ public class GamesController {
         return gameStore.getAllGames();
     }
 
-    @GetMapping("/games/{id}")
+    @GetMapping("/games/{gameId}/pits")
     @ResponseStatus(HttpStatus.OK)
-    public Game getGame(@PathVariable long id) {
+    public GameStatusResponse getPits(@PathVariable long gameId) {
+        Game game = getGameById(gameId);
+        game.displayBoard();
+        return new GameStatusResponse(game);
+    }
+
+
+    private Game getGameById(long gameId) {
         try {
-            return gameStore.getGameByID(id);
+            return gameStore.getGameByID(gameId);
         } catch (NotFoundException ex) {
             LOGGER.error("error gettig game by id", ex);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, ex.getMessage());

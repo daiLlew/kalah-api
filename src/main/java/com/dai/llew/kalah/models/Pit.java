@@ -4,25 +4,25 @@ import static java.text.MessageFormat.format;
 
 public class Pit {
 
-    private static final int PLAYER_ONE_KALAH_PIT_ID = 7;
-    private static final int PLAYER_TWO_KALAH_PIT_ID = 14;
+    private static final int PLAYER_ONE_HOUSE_INDEX = 7;
+    private static final int PLAYER_TWO_HOUSE_PIT_ID = 14;
 
-    private long id;
+    private int id;
     private int stoneCount;
-    private boolean isKalah;
+    private boolean isHouse;
 
-    public Pit(long id) {
+    public Pit(int id) {
         this.id = id;
-        this.isKalah = (PLAYER_ONE_KALAH_PIT_ID == id) || (PLAYER_TWO_KALAH_PIT_ID == id);
+        this.isHouse = (PLAYER_ONE_HOUSE_INDEX == id) || (PLAYER_TWO_HOUSE_PIT_ID == id);
         this.stoneCount = 6;
     }
 
-    public long getId() {
+    public int getId() {
         return this.id;
     }
 
-    public boolean isKalah() {
-        return this.isKalah;
+    public boolean isHouse() {
+        return this.isHouse;
     }
 
     public int getStoneCount() {
