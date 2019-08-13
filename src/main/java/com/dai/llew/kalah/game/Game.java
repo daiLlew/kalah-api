@@ -2,21 +2,26 @@ package com.dai.llew.kalah.game;
 
 import com.dai.llew.kalah.exceptions.GameException;
 
-import static com.dai.llew.kalah.game.GameDisplayer.displayBoard;
 import static com.dai.llew.kalah.game.Player.ONE;
 import static com.dai.llew.kalah.game.Player.TWO;
+import static com.dai.llew.kalah.logging.GameDisplayer.displayBoard;
 import static com.dai.llew.kalah.logging.LogEvent.info;
+import static java.text.MessageFormat.format;
 
 public class Game {
 
     private long id;
+    private State state;
     private Pits pits;
     private Player currentPlayer;
+    private String lastMoveLog;
 
     public Game(long id) {
         this.id = id;
+        this.state = State.CREATED;
         this.pits = new Pits();
         this.currentPlayer = ONE;
+        this.lastMoveLog = null;
     }
 
     Game(long id, Pits pits, Player currentPlayer) {
@@ -33,22 +38,59 @@ public class Game {
         return this.pits;
     }
 
-    public void makeMove(int targetPitID, Player player) {
-        displayBoard(this, player);
-        validatMove(targetPitID, player);
-        moveStones(targetPitID, player);
-       // displayBoard(this, player, targetPitID);
+    public State getState() {
+        return this.state;
     }
 
-    private int moveStones(int targetPitID, Player player) {
-        Pit pit = pits.getPitByID(targetPitID);
+    public String getLastMoveLog() {
+        return this.lastMoveLog;
+    }
 
-        int pitID = targetPitID;
+    public Player getCurrentPlayer() {
+        return this.currentPlayer;
+    }
+
+    public void checkForWinner() {
+        if (isGameCompleted()) {
+            setGameState(State.COMPLETED);
+            info().gameID(this).log("game ended");
+            determinedWinner();
+        }
+    }
+
+    public void executePlayerMove(int startingPitId, Player player) {
+        if (state == State.CREATED) {
+            setGameState(State.IN_PROGRESS);
+        }
+
+        displayBoard(this, player);
+        makeMove(startingPitId, player);
+        displayBoard(this, player);
+    }
+
+    void makeMove(int startingPitId, Player player) {
+        validatMove(startingPitId, player);
+
+        int lastUpdatedId = moveStones(startingPitId, player);
+        Pit lastUpdated = pits.getPitByID(lastUpdatedId);
+
+        boolean isTurnEnded = evaluateTurnOutcome(lastUpdated, player);
+
+        if (isTurnEnded) {
+            endPlayerTurn();
+        }
+    }
+
+    private int moveStones(int startingPitId, Player player) {
+        Pit pit = pits.getPitByID(startingPitId);
+
+        int pitID = startingPitId;
         int stonesAvailable = pit.takeStones();
 
         while (stonesAvailable > 0) {
             pitID = getNextPitID(pitID);
             Pit next = pits.getPitByID(pitID);
+
             if (next.addStone(player)) {
                 stonesAvailable--;
             }
@@ -57,11 +99,14 @@ public class Game {
     }
 
     void validatMove(int pitId, Player player) {
+        if (state == State.COMPLETED)
+            throw new GameException("game is over");
+
         if (!isPlayerTurn(player))
             throw new GameException("player cannot perform move unless its their turn");
 
         if (!isValidPitChoice(player, pitId))
-            throw new GameException("");
+            throw new GameException("player pit choice invalid");
 
         if (pits.isPitEmpty(pitId))
             throw new GameException("cannot move stone from an empty pit");
@@ -69,7 +114,7 @@ public class Game {
 
     boolean isPlayerTurn(Player player) {
         if (currentPlayer == null) {
-
+            throw new GameException("TODO");
         }
         return currentPlayer.equals(player);
     }
@@ -104,5 +149,77 @@ public class Game {
         if (current >= 14 || current < 1)
             return 1;
         return current + 1;
+    }
+
+    void endPlayerTurn() {
+        if (currentPlayer == ONE)
+            currentPlayer = TWO;
+        else
+            currentPlayer = ONE;
+    }
+
+    boolean evaluateTurnOutcome(Pit lastUpdated, Player player) {
+        if (!lastUpdated.getOwner().equals(player)) {
+            lastMoveLog = "last updated was opponents pit - player turn ends";
+            return true;
+        }
+
+        if (lastUpdated.getId() == player.getHousePitId()) {
+            lastMoveLog = "last updated own house - player gets another turn";
+            return false;
+        }
+
+        return handleLastUpdateToOwnPit(lastUpdated, player);
+    }
+
+    boolean handleLastUpdateToOwnPit(Pit lastUpdated, Player player) {
+        if (lastUpdated.getStoneCount() > 1) {
+            lastMoveLog = "last update own non empty pit turn ends";
+            return true;
+        }
+
+        Pit oppositePit = pits.getPitByID(lastUpdated.getOppositeId());
+
+        if (oppositePit.isEmpty()) {
+            lastMoveLog = "last updated own empty pit - opposite pit empty no capture turn ends";
+            return true;
+        }
+
+        captureStones(lastUpdated, oppositePit, player);
+        return true;
+    }
+
+    void captureStones(Pit pit, Pit oppositePit, Player player) {
+        lastMoveLog = "last updated own empty pit - capturing stones from opponent pit - turn ends";
+        int captured = pit.takeStones() + oppositePit.takeStones();
+        pits.addStonesToPlayerHouse(player, captured);
+    }
+
+    /**
+     * The game has ended if either player has zero stones left in any of the pits they control
+     *
+     * @return true if game ended false otherwise.
+     */
+    boolean isGameCompleted() {
+        return pits.stonesRemainingInPlayerPits(ONE) == 0 || pits.stonesRemainingInPlayerPits(TWO) == 0;
+    }
+
+    void setGameState(State updated) {
+        info().gameID(this).gameState(state, updated).log("game state updated");
+        this.state = updated;
+    }
+
+    void determinedWinner() {
+        int p1Score = pits.getPlayerFinalScore(ONE);
+        int p2Score = pits.getPlayerFinalScore(TWO);
+
+        System.out.println(format("P1: {0} P2: {1}", p1Score, p2Score));
+
+        if (p1Score > p2Score)
+            System.out.println("P1 wins");
+        else if (p2Score > p1Score)
+            System.out.println("P2 wins");
+        else
+            System.out.println("Draw");
     }
 }

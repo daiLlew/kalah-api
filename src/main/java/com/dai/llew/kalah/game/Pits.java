@@ -1,17 +1,19 @@
 package com.dai.llew.kalah.game;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class Pits extends ArrayList<Pit> {
 
+    private static Predicate<Pit> FILTER_P1_PITS = (p -> p.getId() >= 1 && p.getId() <= 6);
+    private static Predicate<Pit> FILTER_P2_PITS = (p -> p.getId() >= 7 && p.getId() <= 13);
+
     public Pits() {
-        super(IntStream.range(1, 15)
-                .mapToObj(index -> new Pit(index))
-                .collect(Collectors.toList()));
+        super(createPitList());
     }
 
     public Pit getPitByID(int pitId) {
@@ -37,5 +39,47 @@ public class Pits extends ArrayList<Pit> {
             throw new RuntimeException("invalid pit id");
 
         return pit.isEmpty();
+    }
+
+    public void addStonesToPlayerHouse(Player player, int amount) {
+        Pit pit = getPitByID(player.getHousePitId());
+        pit.addStones(amount);
+    }
+
+    public int stonesRemainingInPlayerPits(Player player) {
+        Predicate<Pit> predicateFilter = FILTER_P1_PITS;
+
+        if (Player.TWO.equals(player)) {
+            predicateFilter = FILTER_P2_PITS;
+        }
+
+        return stream()
+                .filter(predicateFilter)
+                .mapToInt(p -> p.getStoneCount())
+                .sum();
+    }
+
+    public int getPlayerFinalScore(Player player) {
+        int houseScore = getPitByID(player.getHousePitId()).getStoneCount();
+        return houseScore + stonesRemainingInPlayerPits(player);
+    }
+
+    private static List<Pit> createPitList() {
+        return new ArrayList<Pit>() {{
+            add(new Pit(1, 13));
+            add(new Pit(2, 12));
+            add(new Pit(3, 11));
+            add(new Pit(4, 10));
+            add(new Pit(5, 9));
+            add(new Pit(6, 8));
+            add(new Pit(7, 7));
+            add(new Pit(8, 6));
+            add(new Pit(9, 5));
+            add(new Pit(10, 4));
+            add(new Pit(11, 3));
+            add(new Pit(12, 2));
+            add(new Pit(13, 1));
+            add(new Pit(14, 14));
+        }};
     }
 }

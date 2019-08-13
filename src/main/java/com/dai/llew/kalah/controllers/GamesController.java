@@ -3,9 +3,10 @@ package com.dai.llew.kalah.controllers;
 import com.dai.llew.kalah.exceptions.GameException;
 import com.dai.llew.kalah.game.Game;
 import com.dai.llew.kalah.game.Player;
-import com.dai.llew.kalah.game.store.GameStore;
 import com.dai.llew.kalah.responses.GameCreatedResponse;
 import com.dai.llew.kalah.responses.GameStatusResponse;
+import com.dai.llew.kalah.responses.MoveCompletedResponse;
+import com.dai.llew.kalah.store.GameStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,23 +43,29 @@ public class GamesController {
         return gameStore.getAllGames();
     }
 
+    @GetMapping("/games/{gameId}/status")
+    @ResponseStatus(HttpStatus.OK)
+    public GameStatusResponse getStatus(@PathVariable long gameId) {
+        return new GameStatusResponse(getGameById(gameId));
+    }
+
     @GetMapping("/games/{gameId}/pits")
     @ResponseStatus(HttpStatus.OK)
-    public GameStatusResponse getPits(@PathVariable long gameId) {
+    public MoveCompletedResponse getPits(@PathVariable long gameId) {
         Game game = getGameById(gameId);
-        return new GameStatusResponse(game);
+        return new MoveCompletedResponse(game);
     }
 
     @PutMapping("/games/{gameId}/pits/{pitId}")
     @ResponseStatus(HttpStatus.OK)
-    public GameStatusResponse move(@RequestHeader("Player-Id") String playerId,
-                                   @PathVariable long gameId,
-                                   @PathVariable int pitId) {
+    public MoveCompletedResponse move(@RequestHeader("Player-Id") String playerId,
+                                      @PathVariable long gameId,
+                                      @PathVariable int pitId) {
         Player player = getPlayerByID(playerId);
         Game game = getGameById(gameId);
         executePlayerMove(game, player, pitId);
         saveGame(game);
-        return new GameStatusResponse(game);
+        return new MoveCompletedResponse(game);
     }
 
     private long createNewGame() {
@@ -113,7 +120,8 @@ public class GamesController {
     private void executePlayerMove(Game game, Player player, int pitId) {
         try {
             info().gameID(game).player(player).pit(pitId).log("attempting to execute player move");
-            game.makeMove(pitId, player);
+            game.executePlayerMove(pitId, player);
+            game.checkForWinner();
             info().gameID(game)
                     .player(player)
                     .pit(pitId)

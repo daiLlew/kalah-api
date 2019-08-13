@@ -22,7 +22,7 @@ public enum Player {
         return this.id;
     }
 
-    public int getHouseID() {
+    public int getHousePitId() {
         return this.houseID;
     }
 

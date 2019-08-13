@@ -1,4 +1,4 @@
-package com.dai.llew.kalah.game.store;
+package com.dai.llew.kalah.store;
 
 import com.dai.llew.kalah.game.Game;
 

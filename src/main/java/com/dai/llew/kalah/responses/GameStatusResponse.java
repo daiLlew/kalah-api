@@ -1,45 +1,34 @@
 package com.dai.llew.kalah.responses;
 
 import com.dai.llew.kalah.game.Game;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import static java.text.MessageFormat.format;
 
 public class GameStatusResponse {
 
-    @JsonProperty("id")
-    private long gameID;
-
-    private String uri;
-
-    @JsonProperty("status")
-    private Map<Integer, Integer> pits;
+    private long gameId;
+    private String state;
+    private String playerTurn;
+    private String lastMoveLog;
 
     public GameStatusResponse(Game game) {
-        this.gameID = game.getId();
-        this.uri = format("http://localhost:8080/games/{0}", gameID);
-
-        this.pits = game.getPits()
-                .getAsMap()
-                .entrySet()
-                .stream()
-                .collect(Collectors.toMap(
-                        e -> e.getKey(),
-                        pit -> pit.getValue().getStoneCount()));
+        this.gameId = game.getId();
+        this.state = game.getState().name();
+        this.playerTurn = game.getCurrentPlayer().getId();
+        this.lastMoveLog = game.getLastMoveLog();
     }
 
-    public long getGameID() {
-        return this.gameID;
+    public long getGameId() {
+        return this.gameId;
     }
 
-    public String getUri() {
-        return this.uri;
+    public String getState() {
+        return this.state;
     }
 
-    public Map<Integer, Integer> getPits() {
-        return this.pits;
+    public String getPlayerTurn() {
+        return this.playerTurn;
+    }
+
+    public String getLastMoveLog() {
+        return this.lastMoveLog;
     }
 }

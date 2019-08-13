@@ -3,6 +3,7 @@ package com.dai.llew.kalah.logging;
 import com.dai.llew.kalah.game.Game;
 import com.dai.llew.kalah.game.Pit;
 import com.dai.llew.kalah.game.Player;
+import com.dai.llew.kalah.game.State;
 import com.github.onsdigital.logging.v2.event.BaseEvent;
 import com.github.onsdigital.logging.v2.event.Severity;
 
@@ -50,6 +51,14 @@ public class LogEvent extends BaseEvent<LogEvent> {
 
     public LogEvent pit(int pitId) {
         data("pit_id", pitId);
+        return this;
+    }
+
+    public LogEvent gameState(State original, State updated) {
+        if (original != null && updated != null) {
+            data("game_state_original", original.name());
+            data("game_state_updated", updated.name());
+        }
         return this;
     }
 }
