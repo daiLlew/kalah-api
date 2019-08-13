@@ -1,7 +1,7 @@
 package com.dai.llew.kalah.game.store;
 
+import com.dai.llew.kalah.exceptions.GameException;
 import com.dai.llew.kalah.game.Game;
-import com.dai.llew.kalah.game.exceptions.NotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ public class GameStoreImpl implements GameStore {
     public Game getGameByID(long id) {
         Game game = store.get(id);
         if (game == null)
-            throw new NotFoundException(format("game ID: {0} not found", id));
+            throw new GameException(format("game ID: {0} not found", id));
 
         return game;
     }

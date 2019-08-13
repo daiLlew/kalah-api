@@ -34,6 +34,10 @@ public class Pit {
         return taken;
     }
 
+    public boolean isEmpty() {
+        return stoneCount == 0;
+    }
+
     public String toString() {
         return format("({0},{1})", id, stoneCount);
     }

@@ -14,9 +14,9 @@ public class Pits extends ArrayList<Pit> {
                 .collect(Collectors.toList()));
     }
 
-    public Pit getPitByID(int id) {
+    public Pit getPitByID(int pitId) {
         Optional<Pit> result = this.stream()
-                .filter(pit -> pit.getId() == id)
+                .filter(pit -> pit.getId() == pitId)
                 .findFirst();
 
         if (result.isPresent())
@@ -28,7 +28,14 @@ public class Pits extends ArrayList<Pit> {
         return stream()
                 .collect(Collectors.toMap(
                         pit -> pit.getId(),
-                        pit -> pit
-                ));
+                        pit -> pit));
+    }
+
+    public boolean isPitEmpty(int pitId) {
+        Pit pit = getPitByID(pitId);
+        if (pit == null)
+            throw new RuntimeException("invalid pit id");
+
+        return pit.isEmpty();
     }
 }
