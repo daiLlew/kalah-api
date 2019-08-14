@@ -1,8 +1,8 @@
 package com.dai.llew.kalah.logging;
 
-import com.dai.llew.kalah.game.Game;
-import com.dai.llew.kalah.game.Pit;
-import com.dai.llew.kalah.game.Player;
+import com.dai.llew.kalah.model.Game;
+import com.dai.llew.kalah.model.Pit;
+import com.dai.llew.kalah.model.Player;
 
 import java.util.List;
 

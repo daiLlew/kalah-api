@@ -1,0 +1,200 @@
+package com.dai.llew.kalah.model;
+
+import com.dai.llew.kalah.exceptions.GameException;
+import com.dai.llew.kalah.logging.GameDisplayer;
+import org.springframework.stereotype.Component;
+
+import static com.dai.llew.kalah.model.Player.ONE;
+import static com.dai.llew.kalah.model.Player.TWO;
+
+/**
+ * Responsible for managing the model play.
+ */
+@Component
+public class GameRunner {
+
+    /**
+     * Execute a player move.
+     *
+     * @param move the details of the move to perform.
+     */
+    public void executeMove(Move move) {
+        GameDisplayer.displayBoard(move.getGame(), move.getPlayer());
+        move.validate();
+
+        Game game = move.getGame();
+        Player player = move.getPlayer();
+        Pits pits = game.getPits();
+
+        if (game.getState() == State.CREATED) {
+            game.setGameState(State.IN_PROGRESS);
+        }
+
+        int lastUpdatedId = sowStones(game, player, move.getPitId());
+        Pit lastUpdated = pits.getPitByID(lastUpdatedId);
+
+        boolean isTurnEnded = evaluateTurnOutcome(lastUpdated, player, game.getPits());
+
+        if (isTurnEnded) {
+            endPlayerTurn(game);
+        }
+        GameDisplayer.displayBoard(move.getGame(), move.getPlayer());
+    }
+
+    /**
+     * Check if the model has finished. A model finished if all pits owned by a player are empty. If true set the model
+     * state to {@link State#COMPLETED}.
+     *
+     * @param game the model to check.
+     * @return return true if the model is completed false otherwise.
+     */
+    public boolean isGameComplete(Game game) {
+        if (isGameCompleted(game.getPits())) {
+            System.out.println(getResult(game));
+            game.setGameState(State.COMPLETED);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Get the result of the model specified.
+     *
+     * @param game the model to get the results for.
+     * @return {@link GameResult} for the model. Throws {@link GameException} if the model is not finished.
+     */
+    public GameResult getResult(Game game) {
+        if (game.getState() != State.COMPLETED) {
+            throw new GameException("cannot determined model result as model has not finished");
+        }
+        return new GameResult(game);
+    }
+
+    /**
+     * Perform a move for a player. Take all stones from the specified pit and increment each following pit until the
+     * available stones is 0. If a stone cannot be added to a pit i.e. it's their oppenents house then the stone is
+     * carried and added to the next available pit.
+     *
+     * @param game   the model the move is being performed in.
+     * @param player the player making the move.
+     * @param pitId  the ID of the pit to take the stones from.
+     * @return the pit ID of the last stone place during the move.
+     */
+    int sowStones(Game game, Player player, int pitId) {
+        Pits pits = game.getPits();
+
+        Pit pit = pits.getPitByID(pitId);
+        int currentPitId = pitId;
+        int stonesAvailable = pit.takeStones();
+
+        while (stonesAvailable > 0) {
+            currentPitId = getNextPitID(currentPitId);
+            Pit next = pits.getPitByID(currentPitId);
+
+            if (next.addStone(player)) {
+                stonesAvailable--;
+            }
+        }
+        return currentPitId;
+    }
+
+    /**
+     * Given the current pit ID return the ID of the next pit. Valid pit ids are 1 - 14 if the currentPitId is less than
+     * 1 or greater than 14 next id return 1. Otherwise return current + 1.
+     *
+     * @param currentPitId the id of the current pit.
+     * @return the next valid pit ID.
+     */
+    int getNextPitID(int currentPitId) {
+        if (currentPitId >= 14 || currentPitId < 1)
+            return 1;
+        return currentPitId + 1;
+    }
+
+    /**
+     * Once the move has been executed check if the players turn as ended.
+     *
+     * @param lastUpdated the last pit updated in the move.
+     * @param player      the player who made the move.
+     * @param pits        the {@link Game#pits}.
+     * @return true if the current player's turn has ended false otherwise.
+     */
+    boolean evaluateTurnOutcome(Pit lastUpdated, Player player, Pits pits) {
+        if (!lastUpdated.getOwner().equals(player)) {
+            System.out.println("last updated was opponents pit - player turn ends");
+            return true;
+        }
+
+        if (lastUpdated.getId() == player.getHousePitId()) {
+            System.out.println("last updated own house - player gets another turn");
+            return false;
+        }
+
+        return handleLastUpdateToOwnPit(lastUpdated, player, pits);
+    }
+
+    /**
+     * If the last stone placed is in a empty pit owned by the current player if the opposite pit is not empty take
+     * the stone placed in the placed in the players pit and all stones from the opposite and add them to the players
+     * house pit - known as a "capture". This ends the player turn. If the opposite pit is empty no stones are added
+     * and the turn ends.
+     *
+     * @param lastUpdated the pit last updated when executing the move.
+     * @param player      the current player.
+     * @param pits        the {@link Game#pits}.
+     * @return true if the current players turn ends false if they get another turn.
+     */
+    boolean handleLastUpdateToOwnPit(Pit lastUpdated, Player player, Pits pits) {
+        if (lastUpdated.getStoneCount() > 1) {
+            System.out.println("last update own non empty pit turn ends");
+            return true;
+        }
+
+        Pit oppositePit = pits.getPitByID(lastUpdated.getOppositeId());
+
+        if (oppositePit.isEmpty()) {
+            System.out.println("last updated own empty pit - opposite pit empty no capture turn ends");
+            return true;
+        }
+
+        captureOpponentStones(lastUpdated, oppositePit, player, pits);
+        return true;
+    }
+
+    /**
+     * Take all stones from the pit and the opposite pit and add them all to the players house pit.
+     *
+     * @param pit         the players pit.
+     * @param oppositePit the pit opposite pit to capture.
+     * @param player      the player executing the move.
+     * @param pits        the {@link Game#pits}.
+     */
+    void captureOpponentStones(Pit pit, Pit oppositePit, Player player, Pits pits) {
+        System.out.println("last updated own empty pit capturing stones from opponent pit - turn ends");
+
+        int captured = pit.takeStones() + oppositePit.takeStones();
+        pits.addStonesToPlayerHouse(player, captured);
+    }
+
+    /**
+     * End the current players turn
+     *
+     * @param game the {@link Game} to update.
+     */
+    void endPlayerTurn(Game game) {
+        Player currentPlayer = game.getCurrentPlayer();
+        if (currentPlayer == ONE)
+            game.setCurrentPlayer(TWO);
+        else
+            game.setCurrentPlayer(ONE);
+    }
+
+    /**
+     * The model has ended if either player has zero stones left in any of the pits they control
+     *
+     * @return true if model ended false otherwise.
+     */
+    boolean isGameCompleted(Pits pits) {
+        return pits.stonesRemainingInPlayerPits(ONE) == 0 || pits.stonesRemainingInPlayerPits(TWO) == 0;
+    }
+}

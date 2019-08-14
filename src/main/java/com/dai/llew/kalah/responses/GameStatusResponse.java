@@ -1,6 +1,6 @@
 package com.dai.llew.kalah.responses;
 
-import com.dai.llew.kalah.game.Game;
+import com.dai.llew.kalah.model.Game;
 
 public class GameStatusResponse {
 

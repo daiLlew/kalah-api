@@ -1,6 +1,6 @@
 package com.dai.llew.kalah.store;
 
-import com.dai.llew.kalah.game.Game;
+import com.dai.llew.kalah.model.Game;
 
 import java.util.List;
 

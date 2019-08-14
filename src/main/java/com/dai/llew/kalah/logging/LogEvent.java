@@ -1,10 +1,9 @@
 package com.dai.llew.kalah.logging;
 
-import com.dai.llew.kalah.game.Game;
-import com.dai.llew.kalah.game.MoveDetails;
-import com.dai.llew.kalah.game.Pit;
-import com.dai.llew.kalah.game.Player;
-import com.dai.llew.kalah.game.State;
+import com.dai.llew.kalah.model.Game;
+import com.dai.llew.kalah.model.Pit;
+import com.dai.llew.kalah.model.Player;
+import com.dai.llew.kalah.model.State;
 import com.github.onsdigital.logging.v2.event.BaseEvent;
 import com.github.onsdigital.logging.v2.event.Severity;
 
@@ -59,13 +58,6 @@ public class LogEvent extends BaseEvent<LogEvent> {
         if (original != null && updated != null) {
             data("game_state_original", original.name());
             data("game_state_updated", updated.name());
-        }
-        return this;
-    }
-
-    public LogEvent moveLog(MoveDetails moveDetails) {
-        if (moveDetails != null) {
-            data("move_log", moveDetails);
         }
         return this;
     }

@@ -1,4 +1,4 @@
-package com.dai.llew.kalah.game;
+package com.dai.llew.kalah.model;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.dai.llew.kalah.game;
+package com.dai.llew.kalah.model;
 
 import org.apache.commons.lang3.StringUtils;
 
