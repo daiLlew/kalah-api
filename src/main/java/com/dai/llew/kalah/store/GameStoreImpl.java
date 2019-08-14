@@ -17,7 +17,7 @@ public class GameStoreImpl implements GameStore {
 
     private static final AtomicInteger ID_GENERATOR = new AtomicInteger(1);
 
-    private Map<Long, Game> store;
+    private Map<Integer, Game> store;
 
     public GameStoreImpl() {
         this.store = new HashMap<>();
@@ -42,7 +42,7 @@ public class GameStoreImpl implements GameStore {
     }
 
     @Override
-    public Game getGameByID(long id) {
+    public Game getGameByID(int id) {
         Game game = store.get(id);
         if (game == null)
             throw new GameException(format("game ID: {0} not found", id));

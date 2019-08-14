@@ -1,15 +1,19 @@
 package com.dai.llew.kalah.game;
 
 import com.dai.llew.kalah.exceptions.GameException;
+import com.dai.llew.kalah.history.MoveDetailsStore;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static com.dai.llew.kalah.game.Player.ONE;
 import static com.dai.llew.kalah.game.Player.TWO;
-import static com.dai.llew.kalah.logging.GameDisplayer.displayBoard;
 import static com.dai.llew.kalah.logging.LogEvent.error;
 import static com.dai.llew.kalah.logging.LogEvent.info;
 import static java.text.MessageFormat.format;
 
 public class Game {
+
+    @Autowired
+    private MoveDetailsStore moveDetailsStore;
 
     private int id;
     private State state;
@@ -29,7 +33,7 @@ public class Game {
         this.currentPlayer = currentPlayer;
     }
 
-    public long getId() {
+    public int getId() {
         return this.id;
     }
 
@@ -53,38 +57,32 @@ public class Game {
         }
     }
 
-    public void executePlayerMove(int startingPitId, Player player) {
+    public MoveDetails executePlayerMove(int startingPitId, Player player) {
         if (state == State.CREATED) {
             setGameState(State.IN_PROGRESS);
         }
 
-        MoveLog moveLog = new MoveLog(startingPitId, player);
-        displayBoard(this, player);
-
+        MoveDetails moveDetails = new MoveDetails(getId(), startingPitId, player);
         try {
             validatMove(startingPitId, player);
 
-            int lastUpdatedId = sowStones(startingPitId, player, moveLog);
+            int lastUpdatedId = sowStones(startingPitId, player, moveDetails);
             Pit lastUpdated = pits.getPitByID(lastUpdatedId);
 
-            boolean isTurnEnded = evaluateTurnOutcome(lastUpdated, player, moveLog);
+            boolean isTurnEnded = evaluateTurnOutcome(lastUpdated, player, moveDetails);
 
             if (isTurnEnded) {
-                endPlayerTurn(moveLog);
+                endPlayerTurn(moveDetails);
             }
-
-            info().moveLog(moveLog).log("move successful");
-            displayBoard(this, player);
-
+            return moveDetails;
         } catch (Exception ex) {
-            moveLog.message(ex.getMessage());
-            error().exceptionAll(ex).moveLog(moveLog).log("move unsuccessful");
-        } finally {
-
+            moveDetails.message(ex.getMessage());
+            error().exceptionAll(ex).moveLog(moveDetails).log("move unsuccessful");
+            throw ex;
         }
     }
 
-    private int sowStones(int startingPitId, Player player, MoveLog event) {
+    private int sowStones(int startingPitId, Player player, MoveDetails event) {
         Pit pit = pits.getPitByID(startingPitId);
 
         int pitID = startingPitId;
@@ -156,8 +154,8 @@ public class Game {
         return current + 1;
     }
 
-    void endPlayerTurn(MoveLog moveLog) {
-        moveLog.playerTurnOver(true);
+    void endPlayerTurn(MoveDetails moveDetails) {
+        moveDetails.playerTurnOver(true);
 
         if (currentPlayer == ONE)
             currentPlayer = TWO;
@@ -165,41 +163,41 @@ public class Game {
             currentPlayer = ONE;
     }
 
-    boolean evaluateTurnOutcome(Pit lastUpdated, Player player, MoveLog moveLog) {
+    boolean evaluateTurnOutcome(Pit lastUpdated, Player player, MoveDetails moveDetails) {
         if (!lastUpdated.getOwner().equals(player)) {
-            moveLog.message("last updated was opponents pit - player turn ends");
+            moveDetails.message("last updated was opponents pit - player turn ends");
             return true;
         }
 
         if (lastUpdated.getId() == player.getHousePitId()) {
-            moveLog.message("last updated own house - player gets another turn");
+            moveDetails.message("last updated own house - player gets another turn");
             return false;
         }
 
-        return handleLastUpdateToOwnPit(lastUpdated, player, moveLog);
+        return handleLastUpdateToOwnPit(lastUpdated, player, moveDetails);
     }
 
-    boolean handleLastUpdateToOwnPit(Pit lastUpdated, Player player, MoveLog moveLog) {
+    boolean handleLastUpdateToOwnPit(Pit lastUpdated, Player player, MoveDetails moveDetails) {
         if (lastUpdated.getStoneCount() > 1) {
-            moveLog.message("last update own non empty pit turn ends");
+            moveDetails.message("last update own non empty pit turn ends");
             return true;
         }
 
         Pit oppositePit = pits.getPitByID(lastUpdated.getOppositeId());
 
         if (oppositePit.isEmpty()) {
-            moveLog.message("last updated own empty pit - opposite pit empty no capture turn ends");
+            moveDetails.message("last updated own empty pit - opposite pit empty no capture turn ends");
             return true;
         }
 
-        captureStones(lastUpdated, oppositePit, player, moveLog);
+        captureStones(lastUpdated, oppositePit, player, moveDetails);
         return true;
     }
 
-    void captureStones(Pit pit, Pit oppositePit, Player player, MoveLog moveLog) {
-        moveLog.message("last updated own empty pit - capturing stones from opponent pit - turn ends");
+    void captureStones(Pit pit, Pit oppositePit, Player player, MoveDetails moveDetails) {
+        moveDetails.message("last updated own empty pit capturing stones from opponent pit - turn ends");
         int captured = pit.takeStones() + oppositePit.takeStones();
-        moveLog.stonesCaptured(captured);
+        moveDetails.stonesCaptured(captured);
         pits.addStonesToPlayerHouse(player, captured);
     }
 

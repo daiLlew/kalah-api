@@ -12,5 +12,5 @@ public interface GameStore {
 
     void saveGame(Game game);
 
-    Game getGameByID(long id);
+    Game getGameByID(int id);
 }

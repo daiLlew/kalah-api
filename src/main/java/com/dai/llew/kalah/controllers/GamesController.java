@@ -2,7 +2,10 @@ package com.dai.llew.kalah.controllers;
 
 import com.dai.llew.kalah.exceptions.GameException;
 import com.dai.llew.kalah.game.Game;
+import com.dai.llew.kalah.game.MoveDetails;
 import com.dai.llew.kalah.game.Player;
+import com.dai.llew.kalah.history.MoveDetailsStore;
+import com.dai.llew.kalah.logging.GameDisplayer;
 import com.dai.llew.kalah.responses.GameCreatedResponse;
 import com.dai.llew.kalah.responses.GameStatusResponse;
 import com.dai.llew.kalah.responses.MoveCompletedResponse;
@@ -30,6 +33,9 @@ public class GamesController {
     @Autowired
     private GameStore gameStore;
 
+    @Autowired
+    private MoveDetailsStore moveDetailsStore;
+
     @PostMapping("/games")
     @ResponseStatus(HttpStatus.CREATED)
     public GameCreatedResponse newGame() {
@@ -45,13 +51,19 @@ public class GamesController {
 
     @GetMapping("/games/{gameId}/status")
     @ResponseStatus(HttpStatus.OK)
-    public GameStatusResponse getStatus(@PathVariable long gameId) {
+    public GameStatusResponse getStatus(@PathVariable int gameId) {
         return new GameStatusResponse(getGameById(gameId));
+    }
+
+    @GetMapping("/games/{gameId}/history")
+    @ResponseStatus(HttpStatus.OK)
+    public List<MoveDetails> getMovesHistory(@PathVariable int gameId) {
+        return moveDetailsStore.getMoves(gameId);
     }
 
     @GetMapping("/games/{gameId}/pits")
     @ResponseStatus(HttpStatus.OK)
-    public MoveCompletedResponse getPits(@PathVariable long gameId) {
+    public MoveCompletedResponse getPits(@PathVariable int gameId) {
         Game game = getGameById(gameId);
         return new MoveCompletedResponse(game);
     }
@@ -59,7 +71,7 @@ public class GamesController {
     @PutMapping("/games/{gameId}/pits/{pitId}")
     @ResponseStatus(HttpStatus.OK)
     public MoveCompletedResponse move(@RequestHeader("Player-Id") String playerId,
-                                      @PathVariable long gameId,
+                                      @PathVariable int gameId,
                                       @PathVariable int pitId) {
         Player player = getPlayerByID(playerId);
         Game game = getGameById(gameId);
@@ -88,7 +100,7 @@ public class GamesController {
         return player;
     }
 
-    private Game getGameById(long gameId) {
+    private Game getGameById(int gameId) {
         try {
             return gameStore.getGameByID(gameId);
         } catch (GameException ex) {
@@ -120,8 +132,15 @@ public class GamesController {
     private void executePlayerMove(Game game, Player player, int pitId) {
         try {
             info().gameID(game).player(player).pit(pitId).log("attempting to execute player move");
-            game.executePlayerMove(pitId, player);
+            GameDisplayer.displayBoard(game, player);
+
+            MoveDetails moveDetails = game.executePlayerMove(pitId, player);
+            moveDetailsStore.recordMove(moveDetails);
+
             game.checkForWinner();
+
+            GameDisplayer.displayBoard(game, player);
+
             info().gameID(game)
                     .player(player)
                     .pit(pitId)
