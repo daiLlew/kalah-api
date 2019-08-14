@@ -69,7 +69,7 @@ public class GamesController {
     }
 
     private long createNewGame() {
-        long id = gameStore.getNextGameID();
+        int id = gameStore.getNextGameID();
         Game game = new Game(id);
         saveGame(game);
         info().gameID(game).log("new game created successfully");

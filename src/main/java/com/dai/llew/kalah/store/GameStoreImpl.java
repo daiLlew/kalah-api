@@ -8,14 +8,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.text.MessageFormat.format;
 
 @Component
 public class GameStoreImpl implements GameStore {
 
-    private static final AtomicLong ID_GENERATOR = new AtomicLong(1);
+    private static final AtomicInteger ID_GENERATOR = new AtomicInteger(1);
 
     private Map<Long, Game> store;
 
@@ -32,7 +32,7 @@ public class GameStoreImpl implements GameStore {
     }
 
     @Override
-    public long getNextGameID() {
+    public int getNextGameID() {
         return ID_GENERATOR.getAndIncrement();
     }
 

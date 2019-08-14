@@ -7,13 +7,11 @@ public class GameStatusResponse {
     private long gameId;
     private String state;
     private String playerTurn;
-    private String lastMoveLog;
 
     public GameStatusResponse(Game game) {
         this.gameId = game.getId();
         this.state = game.getState().name();
         this.playerTurn = game.getCurrentPlayer().getId();
-        this.lastMoveLog = game.getLastMoveLog();
     }
 
     public long getGameId() {
@@ -26,9 +24,5 @@ public class GameStatusResponse {
 
     public String getPlayerTurn() {
         return this.playerTurn;
-    }
-
-    public String getLastMoveLog() {
-        return this.lastMoveLog;
     }
 }

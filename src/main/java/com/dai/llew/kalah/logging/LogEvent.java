@@ -1,6 +1,7 @@
 package com.dai.llew.kalah.logging;
 
 import com.dai.llew.kalah.game.Game;
+import com.dai.llew.kalah.game.MoveLog;
 import com.dai.llew.kalah.game.Pit;
 import com.dai.llew.kalah.game.Player;
 import com.dai.llew.kalah.game.State;
@@ -61,4 +62,12 @@ public class LogEvent extends BaseEvent<LogEvent> {
         }
         return this;
     }
+
+    public LogEvent moveLog(MoveLog moveLog) {
+        if (moveLog != null) {
+            data("move_log", moveLog);
+        }
+        return this;
+    }
+
 }

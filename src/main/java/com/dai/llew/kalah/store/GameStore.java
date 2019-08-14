@@ -8,7 +8,7 @@ public interface GameStore {
 
     List<Game> getAllGames();
 
-    long getNextGameID();
+    int getNextGameID();
 
     void saveGame(Game game);
 
