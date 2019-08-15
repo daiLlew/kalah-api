@@ -13,14 +13,14 @@ public class MoveCompleted {
     @JsonProperty("id")
     private long gameID;
 
-    private String uri;
+    private String url;
 
     @JsonProperty("status")
     private Map<Integer, Integer> pits;
 
     public MoveCompleted(Game game) {
         this.gameID = game.getId();
-        this.uri = format("http://localhost:8080/games/{0}", gameID);
+        this.url = format("http://localhost:8080/games/{0}", gameID);
 
         this.pits = game.getPits()
                 .getAsMap()
@@ -35,8 +35,8 @@ public class MoveCompleted {
         return this.gameID;
     }
 
-    public String getUri() {
-        return this.uri;
+    public String getUrl() {
+        return this.url;
     }
 
     public Map<Integer, Integer> getPits() {

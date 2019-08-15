@@ -6,20 +6,20 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 public class GameCreated {
 
     private long id;
-    private String uri;
+    private String url;
 
     public GameCreated(long id) {
         this.id = id;
         // TODO hardcoded to localhost for now.
-        this.uri = "http://localhost:8080/games/" + id;
+        this.url = "http://localhost:8080/games/" + id;
     }
 
     public long getId() {
         return this.id;
     }
 
-    public String getUri() {
-        return this.uri;
+    public String getUrl() {
+        return this.url;
     }
 
     @Override
@@ -34,7 +34,7 @@ public class GameCreated {
 
         return new EqualsBuilder()
                 .append(getId(), that.getId())
-                .append(getUri(), that.getUri())
+                .append(getUrl(), that.getUrl())
                 .isEquals();
     }
 
@@ -42,7 +42,7 @@ public class GameCreated {
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .append(getId())
-                .append(getUri())
+                .append(getUrl())
                 .toHashCode();
     }
 }
