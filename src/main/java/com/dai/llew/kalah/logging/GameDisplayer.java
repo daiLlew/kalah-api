@@ -26,9 +26,9 @@ public class GameDisplayer {
         System.out.println(format(SUMMARY_SPACER_FMT, "", "", ""));
         System.out.println();
         System.out.println("Pits:");
-        System.out.println(format(PITS_FMT, getPlayerTwoPits(game.getPits())));
-        System.out.println(format(PITS_FMT, getHousePits(game.getPits())));
-        System.out.println(format(PITS_FMT, getPlayerOnePits(game.getPits())));
+        System.out.println(format(PITS_FMT, getPlayerTwoPits(game.getPits().getList())));
+        System.out.println(format(PITS_FMT, getHousePits(game.getPits().getList())));
+        System.out.println(format(PITS_FMT, getPlayerOnePits(game.getPits().getList())));
     }
 
     private static Object[] getPlayerTwoPits(List<Pit> pits) {

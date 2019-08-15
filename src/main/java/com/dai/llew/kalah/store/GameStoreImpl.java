@@ -32,9 +32,6 @@ public class GameStoreImpl implements GameStore {
 
     public GameStoreImpl() {
         this.store = new HashMap<>();
-
-        // TODO REMOVE ONCE BEFORE SUBMITTING
-        saveGame(createExample());
     }
 
     @Override
@@ -61,9 +58,12 @@ public class GameStoreImpl implements GameStore {
         return game;
     }
 
+    /**
+     * For debugging.
+     */
     private Game createExample() {
         Game g = new Game(getNextGameID());
-        g.getPits().stream().forEach(p -> p.takeStones());
+        g.getPits().getList().stream().forEach(p -> p.takeStones());
 
         g.getPits().getPitByID(5).addStones(1);
         g.getPits().getPitByID(8).addStones(1);

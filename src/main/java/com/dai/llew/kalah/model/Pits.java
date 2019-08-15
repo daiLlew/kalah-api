@@ -11,17 +11,35 @@ import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
-public class Pits extends ArrayList<Pit> {
+public class Pits {
 
     private static final Predicate<Pit> FILTER_P1_PITS = (p -> p.getId() >= 1 && p.getId() <= 6);
     private static final Predicate<Pit> FILTER_P2_PITS = (p -> p.getId() >= 8 && p.getId() <= 13);
 
+    private List<Pit> list;
+
     public Pits() {
-        super(createPitList());
+        this.list = new ArrayList<Pit>() {{
+            add(new Pit(1, 13));
+            add(new Pit(2, 12));
+            add(new Pit(3, 11));
+            add(new Pit(4, 10));
+            add(new Pit(5, 9));
+            add(new Pit(6, 8));
+            add(new Pit(7, 7));
+            add(new Pit(8, 6));
+            add(new Pit(9, 5));
+            add(new Pit(10, 4));
+            add(new Pit(11, 3));
+            add(new Pit(12, 2));
+            add(new Pit(13, 1));
+            add(new Pit(14, 14));
+        }};
     }
 
     public Pit getPitByID(int pitId) {
-        Optional<Pit> result = this.stream()
+        Optional<Pit> result = this.list
+                .stream()
                 .filter(pit -> pit.getId() == pitId)
                 .findFirst();
 
@@ -31,7 +49,7 @@ public class Pits extends ArrayList<Pit> {
     }
 
     public Map<Integer, Pit> getAsMap() {
-        return stream()
+        return list.stream()
                 .collect(Collectors.toMap(
                         pit -> pit.getId(),
                         pit -> pit));
@@ -57,7 +75,7 @@ public class Pits extends ArrayList<Pit> {
             predicateFilter = FILTER_P2_PITS;
         }
 
-        return stream()
+        return list.stream()
                 .filter(predicateFilter)
                 .mapToInt(p -> p.getStoneCount())
                 .sum();
@@ -68,22 +86,7 @@ public class Pits extends ArrayList<Pit> {
         return houseScore + stonesRemainingInPlayerPits(player);
     }
 
-    private static List<Pit> createPitList() {
-        return new ArrayList<Pit>() {{
-            add(new Pit(1, 13));
-            add(new Pit(2, 12));
-            add(new Pit(3, 11));
-            add(new Pit(4, 10));
-            add(new Pit(5, 9));
-            add(new Pit(6, 8));
-            add(new Pit(7, 7));
-            add(new Pit(8, 6));
-            add(new Pit(9, 5));
-            add(new Pit(10, 4));
-            add(new Pit(11, 3));
-            add(new Pit(12, 2));
-            add(new Pit(13, 1));
-            add(new Pit(14, 14));
-        }};
+    public List<Pit> getList() {
+        return this.list;
     }
 }
