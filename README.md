@@ -80,6 +80,10 @@ Returns response:
 ```
 **Note**: You must provide the request header `Player-Id` with value `player-1` or `player-2`. If no header or an 
 invalid header is provided you will get a resopnse similar to:
+
+
+After each turn use the `GET:/game/{id}/status` endpoint to determined who's turn it is & the current state of the game.
+
 ````json
 {
   "timestamp": "2019-08-15T18:49:12.763+0000",
