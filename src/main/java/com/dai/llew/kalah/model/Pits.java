@@ -9,6 +9,8 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+
 public class Pits extends ArrayList<Pit> {
 
     private static final Predicate<Pit> FILTER_P1_PITS = (p -> p.getId() >= 1 && p.getId() <= 6);
@@ -38,7 +40,7 @@ public class Pits extends ArrayList<Pit> {
     public boolean isPitEmpty(int pitId) {
         Pit pit = getPitByID(pitId);
         if (pit == null)
-            throw new GameException("invalid pit id");
+            throw new GameException("invalid pit id", BAD_REQUEST);
 
         return pit.isEmpty();
     }

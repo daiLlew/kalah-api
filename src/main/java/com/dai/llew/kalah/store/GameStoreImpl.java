@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.text.MessageFormat.format;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Component
 public class GameStoreImpl implements GameStore {
@@ -45,7 +46,7 @@ public class GameStoreImpl implements GameStore {
     public Game getGameByID(int id) {
         Game game = store.get(id);
         if (game == null)
-            throw new GameException(format("game ID: {0} not found", id));
+            throw new GameException(format("game ID: {0} not found", id), BAD_REQUEST);
 
         return game;
     }

@@ -1,12 +1,17 @@
 package com.dai.llew.kalah.exceptions;
 
+import org.springframework.http.HttpStatus;
+
 public class GameException extends RuntimeException {
 
-    public GameException(String message) {
+    private HttpStatus status;
+
+    public GameException(String message, HttpStatus status) {
         super(message);
+        this.status = status;
     }
 
-    public GameException(String message, Throwable cause) {
-        super(message, cause);
+    public HttpStatus getStatus() {
+        return this.status;
     }
 }

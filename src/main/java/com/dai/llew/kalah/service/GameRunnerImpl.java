@@ -1,18 +1,26 @@
-package com.dai.llew.kalah.model;
+package com.dai.llew.kalah.service;
 
 import com.dai.llew.kalah.exceptions.GameException;
 import com.dai.llew.kalah.logging.GameDisplayer;
+import com.dai.llew.kalah.model.Game;
+import com.dai.llew.kalah.model.GameResult;
+import com.dai.llew.kalah.model.Move;
+import com.dai.llew.kalah.model.Pit;
+import com.dai.llew.kalah.model.Pits;
+import com.dai.llew.kalah.model.Player;
+import com.dai.llew.kalah.model.State;
 import org.springframework.stereotype.Component;
 
 import static com.dai.llew.kalah.logging.LogEvent.info;
 import static com.dai.llew.kalah.model.Player.ONE;
 import static com.dai.llew.kalah.model.Player.TWO;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 /**
  * Responsible for managing the model play.
  */
 @Component
-public class GameRunner {
+public class GameRunnerImpl implements GameRunner {
 
     /**
      * Execute a player move.
@@ -58,6 +66,7 @@ public class GameRunner {
 
         if (isGameEnded) {
             game.setGameState(State.COMPLETED);
+            game.setCurrentPlayer(null);
 
             GameResult result = getResult(game);
             game.setResult(result);
@@ -74,7 +83,7 @@ public class GameRunner {
      */
     public GameResult getResult(Game game) {
         if (game.getState() != State.COMPLETED) {
-            throw new GameException("cannot determined game result as model has not finished");
+            throw new GameException("cannot determined game result as model has not finished", BAD_REQUEST);
         }
 
         int p1Score = game.getPits().getPlayerFinalScore(ONE);

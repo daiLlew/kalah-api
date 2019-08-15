@@ -2,9 +2,11 @@ package com.dai.llew.kalah.model;
 
 import com.dai.llew.kalah.exceptions.GameException;
 
+import static com.dai.llew.kalah.logging.LogEvent.info;
 import static com.dai.llew.kalah.model.Player.ONE;
 import static com.dai.llew.kalah.model.Player.TWO;
-import static com.dai.llew.kalah.logging.LogEvent.info;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 public class Move {
 
@@ -32,22 +34,22 @@ public class Move {
 
     public void validate() {
         if (game.getState() == State.COMPLETED)
-            throw new GameException("cannot execute move model is over");
+            throw new GameException("cannot execute move model is over", BAD_REQUEST);
 
         if (!isPlayerTurn())
-            throw new GameException("player cannot perform move unless its their turn");
+            throw new GameException("player cannot perform move unless it is their turn", BAD_REQUEST);
 
         if (!isValidPitChoice())
-            throw new GameException("player pit choice invalid");
+            throw new GameException("player pit choice invalid", BAD_REQUEST);
 
         if (game.getPits().isPitEmpty(pitId))
-            throw new GameException("cannot move stone from an empty pit");
+            throw new GameException("cannot move stone from an empty pit", BAD_REQUEST);
     }
 
     boolean isPlayerTurn() {
         Player currentPlayer = game.getCurrentPlayer();
         if (currentPlayer == null) {
-            throw new GameException("TODO");
+            throw new GameException("internal server error", INTERNAL_SERVER_ERROR);
         }
         return currentPlayer.equals(player);
     }
@@ -68,6 +70,6 @@ public class Move {
         }
 
         info().gameID(game.getId()).log("isValidPitChoice expected player but was null");
-        throw new GameException("TODO");
+        throw new GameException("internal server error", INTERNAL_SERVER_ERROR);
     }
 }
