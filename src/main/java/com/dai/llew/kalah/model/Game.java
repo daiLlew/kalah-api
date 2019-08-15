@@ -44,7 +44,7 @@ public class Game {
     }
 
     public void setGameState(State updated) {
-        info().gameID(this).gameState(state, updated).log("model state updated");
+        info().gameID(this).gameState(state, updated).log("game state updated");
         this.state = updated;
     }
 

@@ -17,7 +17,7 @@ import static com.dai.llew.kalah.model.Player.TWO;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 /**
- * Responsible for managing the model play.
+ * Responsible for managing the game play.
  */
 @Component
 public class GameRunnerImpl implements GameRunner {
@@ -51,11 +51,11 @@ public class GameRunnerImpl implements GameRunner {
     }
 
     /**
-     * Check if the model has finished. A game is finished if all pits owned by a player are empty. If true set the
-     * model state to {@link State#COMPLETED}.
+     * Check if the game has finished. A game is finished if all pits owned by a player are empty. If true set the
+     * game state to {@link State#COMPLETED}.
      *
-     * @param game the model to check.
-     * @return return true if the model is completed false otherwise.
+     * @param game the game to check.
+     * @return return true if the game is completed false otherwise.
      */
     public boolean isGameComplete(Game game) {
         Pits pits = game.getPits();
@@ -76,14 +76,14 @@ public class GameRunnerImpl implements GameRunner {
     }
 
     /**
-     * Get the result of the model specified.
+     * Get the result of the game specified.
      *
-     * @param game the model to get the results for.
-     * @return {@link GameResult} for the model. Throws {@link GameException} if the model is not finished.
+     * @param game the game to get the results for.
+     * @return {@link GameResult} for the game. Throws {@link GameException} if the game is not finished.
      */
     public GameResult getResult(Game game) {
         if (game.getState() != State.COMPLETED) {
-            throw new GameException("cannot determined game result as model has not finished", BAD_REQUEST);
+            throw new GameException("cannot determined game result as game has not finished", BAD_REQUEST);
         }
 
         int p1Score = game.getPits().getPlayerFinalScore(ONE);
@@ -96,7 +96,7 @@ public class GameRunnerImpl implements GameRunner {
      * available stones is 0. If a stone cannot be added to a pit i.e. it's their oppenents house then the stone is
      * carried and added to the next available pit.
      *
-     * @param game   the model the move is being performed in.
+     * @param game   the game the move is being performed in.
      * @param player the player making the move.
      * @param pitId  the ID of the pit to take the stones from.
      * @return the pit ID of the last stone place during the move.

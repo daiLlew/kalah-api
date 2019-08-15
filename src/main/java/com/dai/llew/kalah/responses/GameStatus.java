@@ -4,9 +4,9 @@ import com.dai.llew.kalah.model.Game;
 import com.dai.llew.kalah.model.GameResult;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-public class GameStatusResponse {
+public class GameStatus {
 
-    private long gameId;
+    private int gameId;
     private String state;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -15,7 +15,7 @@ public class GameStatusResponse {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private GameResult result;
 
-    public GameStatusResponse(Game game) {
+    public GameStatus(Game game) {
         this.gameId = game.getId();
         this.state = game.getState().name();
         this.result = game.getResult();
@@ -25,7 +25,7 @@ public class GameStatusResponse {
         }
     }
 
-    public long getGameId() {
+    public int getGameId() {
         return this.gameId;
     }
 

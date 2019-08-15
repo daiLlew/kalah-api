@@ -3,12 +3,12 @@ package com.dai.llew.kalah.responses;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class GameCreatedResponse {
+public class GameCreated {
 
     private long id;
     private String uri;
 
-    public GameCreatedResponse(long id) {
+    public GameCreated(long id) {
         this.id = id;
         // TODO hardcoded to localhost for now.
         this.uri = "http://localhost:8080/games/" + id;
@@ -30,7 +30,7 @@ public class GameCreatedResponse {
         if (o == null || getClass() != o.getClass())
             return false;
 
-        GameCreatedResponse that = (GameCreatedResponse) o;
+        GameCreated that = (GameCreated) o;
 
         return new EqualsBuilder()
                 .append(getId(), that.getId())

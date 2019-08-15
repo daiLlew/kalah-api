@@ -31,7 +31,7 @@
         <appender-ref ref="GAME_LOGGER"/>
     </logger>
 
-    <root level="warn">
+    <root level="info">
         <appender-ref ref="THIRD_PARTY"/>
     </root>
 

@@ -13,6 +13,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static java.text.MessageFormat.format;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
+/**
+ * For the simplicity and to guaranteed this app work straight of the box I decided to mock the behaviour of a database
+ * by using an in memory hashmap to store games between requests. Obviously the data is not persisted so if the app
+ * stops you loose your game but for demo puposes I felt this was enough.
+ * <p>
+ * If this was for real then I would use an actual database and based on the needs of the apps either use the
+ * simple JDBC Template or if it made sense consider using the JPA annotations and create entity classes.
+ * <p>
+ * My inital choice/preference would be a NoSQL implementation like MongoDB.
+ */
 @Component
 public class GameStoreImpl implements GameStore {
 

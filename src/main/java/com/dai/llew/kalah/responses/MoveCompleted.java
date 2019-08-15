@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 import static java.text.MessageFormat.format;
 
-public class MoveCompletedResponse {
+public class MoveCompleted {
 
     @JsonProperty("id")
     private long gameID;
@@ -18,7 +18,7 @@ public class MoveCompletedResponse {
     @JsonProperty("status")
     private Map<Integer, Integer> pits;
 
-    public MoveCompletedResponse(Game game) {
+    public MoveCompleted(Game game) {
         this.gameID = game.getId();
         this.uri = format("http://localhost:8080/games/{0}", gameID);
 

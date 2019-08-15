@@ -20,7 +20,7 @@ public class GameServiceImpl implements GameService {
         int id = store.getNextGameID();
         Game game = new Game(id);
         saveGame(game);
-        info().gameID(game).log("new model created successfully");
+        info().gameID(game).log("new game created successfully");
         return game.getId();
     }
 
@@ -37,6 +37,6 @@ public class GameServiceImpl implements GameService {
     @Override
     public void saveGame(Game game) {
         store.saveGame(game);
-        info().gameID(game).log("save model completed successfully");
+        info().gameID(game).log("save game completed successfully");
     }
 }

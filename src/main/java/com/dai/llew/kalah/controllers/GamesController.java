@@ -5,9 +5,9 @@ import com.dai.llew.kalah.logging.GameDisplayer;
 import com.dai.llew.kalah.model.Game;
 import com.dai.llew.kalah.model.Move;
 import com.dai.llew.kalah.model.Player;
-import com.dai.llew.kalah.responses.GameCreatedResponse;
-import com.dai.llew.kalah.responses.GameStatusResponse;
-import com.dai.llew.kalah.responses.MoveCompletedResponse;
+import com.dai.llew.kalah.responses.GameCreated;
+import com.dai.llew.kalah.responses.GameStatus;
+import com.dai.llew.kalah.responses.MoveCompleted;
 import com.dai.llew.kalah.service.GameRunner;
 import com.dai.llew.kalah.service.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +30,8 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 @RestController
 public class GamesController {
 
+    static final String INTERNAL_SERVER_ERR_MSG = "internal server error";
+
     @Autowired
     private GameRunner gameRunner;
 
@@ -41,14 +43,14 @@ public class GamesController {
      */
     @PostMapping("/games")
     @ResponseStatus(HttpStatus.CREATED)
-    public GameCreatedResponse newGame() {
+    public GameCreated newGame() {
         try {
             long gameID = gameService.createNewGame();
-            return new GameCreatedResponse(gameID);
+            return new GameCreated(gameID);
         } catch (GameException ex) {
             throw new ResponseStatusException(ex.getStatus(), ex.getMessage());
         } catch (Exception ex) {
-            throw new ResponseStatusException(INTERNAL_SERVER_ERROR, "internal server error");
+            throw new ResponseStatusException(INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERR_MSG);
         }
     }
 
@@ -63,7 +65,7 @@ public class GamesController {
         } catch (GameException ex) {
             throw new ResponseStatusException(ex.getStatus(), ex.getMessage());
         } catch (Exception ex) {
-            throw new ResponseStatusException(INTERNAL_SERVER_ERROR, ex.getMessage());
+            throw new ResponseStatusException(INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERR_MSG);
         }
     }
 
@@ -72,11 +74,11 @@ public class GamesController {
      */
     @GetMapping("/games/{gameId}/status")
     @ResponseStatus(HttpStatus.OK)
-    public GameStatusResponse getStatus(@PathVariable int gameId) {
+    public GameStatus getStatus(@PathVariable int gameId) {
         try {
             Game game = gameService.getGameById(gameId);
             GameDisplayer.displayBoard(game);
-            return new GameStatusResponse(game);
+            return new GameStatus(game);
         } catch (GameException ex) {
             throw new ResponseStatusException(ex.getStatus(), ex.getMessage());
         } catch (Exception ex) {
@@ -89,11 +91,11 @@ public class GamesController {
      */
     @GetMapping("/games/{gameId}/pits")
     @ResponseStatus(HttpStatus.OK)
-    public MoveCompletedResponse getPits(@PathVariable int gameId) {
+    public MoveCompleted getPits(@PathVariable int gameId) {
         try {
             Game game = gameService.getGameById(gameId);
             GameDisplayer.displayBoard(game);
-            return new MoveCompletedResponse(game);
+            return new MoveCompleted(game);
         } catch (GameException ex) {
             throw new ResponseStatusException(ex.getStatus(), ex.getMessage());
         } catch (Exception ex) {
@@ -106,9 +108,9 @@ public class GamesController {
      */
     @PutMapping("/games/{gameId}/pits/{pitId}")
     @ResponseStatus(HttpStatus.OK)
-    public MoveCompletedResponse move(@RequestHeader("Player-Id") String playerId,
-                                      @PathVariable int gameId,
-                                      @PathVariable int pitId) {
+    public MoveCompleted move(@RequestHeader("Player-Id") String playerId,
+                              @PathVariable int gameId,
+                              @PathVariable int pitId) {
         try {
             Player player = getPlayerByID(playerId);
             Game game = gameService.getGameById(gameId);
@@ -120,7 +122,7 @@ public class GamesController {
 
             gameService.saveGame(game);
 
-            return new MoveCompletedResponse(game);
+            return new MoveCompleted(game);
         } catch (GameException ex) {
             throw new ResponseStatusException(ex.getStatus(), ex.getMessage());
         } catch (Exception ex) {

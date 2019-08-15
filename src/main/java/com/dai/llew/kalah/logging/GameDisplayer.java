@@ -19,6 +19,7 @@ public class GameDisplayer {
     static final Object[] BOARDER = new Object[]{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY};
 
     public static void displayBoard(Game game) {
+        System.out.println("\nDEBUG\n");
         System.out.println(format(SUMMARY_HEADER_FMT, "Game ID", "Current Player", "State"));
         System.out.println(format(SUMMARY_SPACER_FMT, "", "", ""));
         System.out.println(format(SUMMARY_HEADER_FMT, game.getId(), game.getCurrentPlayer(), game.getState().name()));

@@ -34,7 +34,7 @@ public class Move {
 
     public void validate() {
         if (game.getState() == State.COMPLETED)
-            throw new GameException("cannot execute move model is over", BAD_REQUEST);
+            throw new GameException("cannot execute move game is over", BAD_REQUEST);
 
         if (!isPlayerTurn())
             throw new GameException("player cannot perform move unless it is their turn", BAD_REQUEST);

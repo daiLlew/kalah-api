@@ -1,6 +1,5 @@
 package com.dai.llew.kalah.model;
 
-import com.dai.llew.kalah.exceptions.GameException;
 import org.junit.Test;
 
 import java.util.ArrayList;
