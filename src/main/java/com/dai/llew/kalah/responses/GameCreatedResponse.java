@@ -7,6 +7,7 @@ public class GameCreatedResponse {
 
     public GameCreatedResponse(long id) {
         this.id = id;
+        // TODO hardcoded to localhost for now.
         this.uri = "http://localhost:8080/games/" + id;
     }
 

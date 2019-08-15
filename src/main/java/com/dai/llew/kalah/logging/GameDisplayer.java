@@ -2,29 +2,32 @@ package com.dai.llew.kalah.logging;
 
 import com.dai.llew.kalah.model.Game;
 import com.dai.llew.kalah.model.Pit;
-import com.dai.llew.kalah.model.Player;
 
 import java.util.List;
 
+import static java.lang.String.format;
+
+/**
+ * Util for writing a game board/pits to the console useful for debugging.
+ */
 public class GameDisplayer {
 
-    static final String FMT = "%1$-10s%2$-10s%3$-10s%4$-10s%5$-10s%6$-10s%7$-10s%8$-10s\n";
-    static final String H1_FMT = "%1$-10s%2$-10s\n";
-
-    static final String EMPTY = " - ";
+    static final String SUMMARY_HEADER_FMT = "| %1$-10s| %2$-15s| %3$-10s|";
+    static final String SUMMARY_SPACER_FMT = "+ %10s+ %15s+ %10s+";
+    static final String PITS_FMT = " %1$-6s %2$-6s %3$-6s %4$-6s %5$-6s %6$-6s %7$-6s %8$-6s \n";
+    static final String EMPTY = "";
     static final Object[] BOARDER = new Object[]{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY};
 
-    public static void displayBoard(Game game, Player player) {
-
+    public static void displayBoard(Game game) {
+        System.out.println(format(SUMMARY_HEADER_FMT, "Game ID", "Current Player", "State"));
+        System.out.println(format(SUMMARY_SPACER_FMT, "", "", ""));
+        System.out.println(format(SUMMARY_HEADER_FMT, game.getId(), game.getCurrentPlayer(), game.getState().name()));
+        System.out.println(format(SUMMARY_SPACER_FMT, "", "", ""));
         System.out.println();
-        System.out.format(H1_FMT, "Game ID", "Player ID");
-        System.out.format(H1_FMT,game.getId(),  player.getId());
-        System.out.println();
-
-        System.out.format(FMT, getPlayerTwoPits(game.getPits()));
-        System.out.format(FMT, getHousePits(game.getPits()));
-        System.out.format(FMT, getPlayerOnePits(game.getPits()));
-        System.out.println();
+        System.out.println("Pits:");
+        System.out.println(format(PITS_FMT, getPlayerTwoPits(game.getPits())));
+        System.out.println(format(PITS_FMT, getHousePits(game.getPits())));
+        System.out.println(format(PITS_FMT, getPlayerOnePits(game.getPits())));
     }
 
     private static Object[] getPlayerTwoPits(List<Pit> pits) {

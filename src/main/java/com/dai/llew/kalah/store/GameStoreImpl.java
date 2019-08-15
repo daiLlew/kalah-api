@@ -23,7 +23,7 @@ public class GameStoreImpl implements GameStore {
         this.store = new HashMap<>();
 
         // TODO REMOVE ONCE BEFORE SUBMITTING
-        saveGame(new Game(getNextGameID()));
+        saveGame(createExample());
     }
 
     @Override
@@ -45,8 +45,18 @@ public class GameStoreImpl implements GameStore {
     public Game getGameByID(int id) {
         Game game = store.get(id);
         if (game == null)
-            throw new GameException(format("model ID: {0} not found", id));
+            throw new GameException(format("game ID: {0} not found", id));
 
         return game;
+    }
+
+    private Game createExample() {
+        Game g = new Game(getNextGameID());
+        g.getPits().stream().forEach(p -> p.takeStones());
+
+        g.getPits().getPitByID(5).addStones(1);
+        g.getPits().getPitByID(8).addStones(1);
+
+        return g;
     }
 }

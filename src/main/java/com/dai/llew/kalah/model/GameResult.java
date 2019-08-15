@@ -1,24 +1,22 @@
 package com.dai.llew.kalah.model;
 
-import static com.dai.llew.kalah.model.Player.ONE;
-import static com.dai.llew.kalah.model.Player.TWO;
-import static java.text.MessageFormat.format;
 
 public class GameResult {
 
-    private int gameId;
     private int playerOneScore;
     private int playerTwoScore;
-    private String message;
+    private String winner;
 
-    public GameResult(Game game) {
-        this.gameId = game.getId();
-        this.playerOneScore = game.getPits().getPlayerFinalScore(ONE);
-        this.playerTwoScore = game.getPits().getPlayerFinalScore(TWO);
-    }
+    public GameResult(int playerOneScore, int playerTwoScore) {
+        this.playerOneScore = playerOneScore;
+        this.playerTwoScore = playerTwoScore;
 
-    public int getGameId() {
-        return this.gameId;
+        if (playerOneScore == playerTwoScore)
+            this.winner = "Draw";
+        else if (playerOneScore > playerTwoScore)
+            this.winner = "Player one";
+        else
+            this.winner = "Player two";
     }
 
     public int getPlayerOneScore() {
@@ -29,15 +27,7 @@ public class GameResult {
         return this.playerTwoScore;
     }
 
-    public String getMessage() {
-        if (playerOneScore == playerTwoScore) {
-            return format("Draw! Scores: P1={0} P2={1}\n", playerOneScore, playerTwoScore);
-        }
-
-        Player player = Player.ONE;
-        if (playerTwoScore > playerOneScore) {
-            player = Player.TWO;
-        }
-        return format("Player {0} wins! P1: {1} P2: {2}\n", player.getId(), playerOneScore, playerTwoScore);
+    public String getWinner() {
+        return this.winner;
     }
 }

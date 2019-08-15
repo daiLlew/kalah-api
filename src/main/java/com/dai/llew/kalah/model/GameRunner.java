@@ -4,6 +4,7 @@ import com.dai.llew.kalah.exceptions.GameException;
 import com.dai.llew.kalah.logging.GameDisplayer;
 import org.springframework.stereotype.Component;
 
+import static com.dai.llew.kalah.logging.LogEvent.info;
 import static com.dai.llew.kalah.model.Player.ONE;
 import static com.dai.llew.kalah.model.Player.TWO;
 
@@ -19,7 +20,7 @@ public class GameRunner {
      * @param move the details of the move to perform.
      */
     public void executeMove(Move move) {
-        GameDisplayer.displayBoard(move.getGame(), move.getPlayer());
+        GameDisplayer.displayBoard(move.getGame());
         move.validate();
 
         Game game = move.getGame();
@@ -38,23 +39,31 @@ public class GameRunner {
         if (isTurnEnded) {
             endPlayerTurn(game);
         }
-        GameDisplayer.displayBoard(move.getGame(), move.getPlayer());
+        GameDisplayer.displayBoard(move.getGame());
     }
 
     /**
-     * Check if the model has finished. A model finished if all pits owned by a player are empty. If true set the model
-     * state to {@link State#COMPLETED}.
+     * Check if the model has finished. A game is finished if all pits owned by a player are empty. If true set the
+     * model state to {@link State#COMPLETED}.
      *
      * @param game the model to check.
      * @return return true if the model is completed false otherwise.
      */
     public boolean isGameComplete(Game game) {
-        if (isGameCompleted(game.getPits())) {
-            System.out.println(getResult(game));
+        Pits pits = game.getPits();
+        int p1ActiveStones = pits.stonesRemainingInPlayerPits(ONE);
+        int pActiveStones = pits.stonesRemainingInPlayerPits(TWO);
+
+        boolean isGameEnded = p1ActiveStones == 0 || pActiveStones == 0;
+
+        if (isGameEnded) {
             game.setGameState(State.COMPLETED);
-            return true;
+
+            GameResult result = getResult(game);
+            game.setResult(result);
+            info().gameResult(result).gameID(game).log("game is completed");
         }
-        return false;
+        return isGameEnded;
     }
 
     /**
@@ -65,9 +74,12 @@ public class GameRunner {
      */
     public GameResult getResult(Game game) {
         if (game.getState() != State.COMPLETED) {
-            throw new GameException("cannot determined model result as model has not finished");
+            throw new GameException("cannot determined game result as model has not finished");
         }
-        return new GameResult(game);
+
+        int p1Score = game.getPits().getPlayerFinalScore(ONE);
+        int p2Score = game.getPits().getPlayerFinalScore(TWO);
+        return new GameResult(p1Score, p2Score);
     }
 
     /**
@@ -187,14 +199,5 @@ public class GameRunner {
             game.setCurrentPlayer(TWO);
         else
             game.setCurrentPlayer(ONE);
-    }
-
-    /**
-     * The model has ended if either player has zero stones left in any of the pits they control
-     *
-     * @return true if model ended false otherwise.
-     */
-    boolean isGameCompleted(Pits pits) {
-        return pits.stonesRemainingInPlayerPits(ONE) == 0 || pits.stonesRemainingInPlayerPits(TWO) == 0;
     }
 }

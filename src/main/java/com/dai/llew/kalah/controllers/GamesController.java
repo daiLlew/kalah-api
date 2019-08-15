@@ -1,5 +1,6 @@
 package com.dai.llew.kalah.controllers;
 
+import com.dai.llew.kalah.logging.GameDisplayer;
 import com.dai.llew.kalah.model.Game;
 import com.dai.llew.kalah.model.GameRunner;
 import com.dai.llew.kalah.model.Move;
@@ -58,6 +59,7 @@ public class GamesController {
     @ResponseStatus(HttpStatus.OK)
     public GameStatusResponse getStatus(@PathVariable int gameId) {
         Game game = gameService.getGameById(gameId);
+        GameDisplayer.displayBoard(game);
         return new GameStatusResponse(game);
     }
 
@@ -68,6 +70,8 @@ public class GamesController {
     @ResponseStatus(HttpStatus.OK)
     public MoveCompletedResponse getPits(@PathVariable int gameId) {
         Game game = gameService.getGameById(gameId);
+
+        GameDisplayer.displayBoard(game);
         return new MoveCompletedResponse(game);
     }
 
@@ -93,12 +97,12 @@ public class GamesController {
 
     private Player getPlayerByID(String playerId) {
         if (isEmpty(playerId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "no player id headrer provided");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "cannot determined player expected header Player-Id but none provided");
         }
 
         Player player = Player.getByID(playerId);
         if (player == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid player id header");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid Player-Id header");
         }
         return player;
     }

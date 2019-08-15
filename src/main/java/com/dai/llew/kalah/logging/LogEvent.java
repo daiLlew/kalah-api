@@ -1,6 +1,7 @@
 package com.dai.llew.kalah.logging;
 
 import com.dai.llew.kalah.model.Game;
+import com.dai.llew.kalah.model.GameResult;
 import com.dai.llew.kalah.model.Pit;
 import com.dai.llew.kalah.model.Player;
 import com.dai.llew.kalah.model.State;
@@ -58,6 +59,13 @@ public class LogEvent extends BaseEvent<LogEvent> {
         if (original != null && updated != null) {
             data("game_state_original", original.name());
             data("game_state_updated", updated.name());
+        }
+        return this;
+    }
+
+    public LogEvent gameResult(GameResult result) {
+        if (result != null) {
+            data("result", result);
         }
         return this;
     }

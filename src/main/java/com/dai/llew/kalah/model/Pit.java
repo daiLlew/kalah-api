@@ -4,7 +4,7 @@ import static java.text.MessageFormat.format;
 
 public class Pit {
 
-    static final int INITIAL_STONE_COUNT = 2;
+    static final int INITIAL_STONE_COUNT = 6;
 
     private int id;
     private int oppositeId;
