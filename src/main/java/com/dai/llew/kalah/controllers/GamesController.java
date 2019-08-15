@@ -48,7 +48,7 @@ public class GamesController {
         } catch (GameException ex) {
             throw new ResponseStatusException(ex.getStatus(), ex.getMessage());
         } catch (Exception ex) {
-            throw new ResponseStatusException(INTERNAL_SERVER_ERROR, ex.getMessage());
+            throw new ResponseStatusException(INTERNAL_SERVER_ERROR, "internal server error");
         }
     }
 
