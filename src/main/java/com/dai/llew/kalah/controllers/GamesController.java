@@ -1,12 +1,14 @@
 package com.dai.llew.kalah.controllers;
 
-import com.dai.llew.kalah.exceptions.GameException;
-import com.dai.llew.kalah.game.Game;
-import com.dai.llew.kalah.game.Player;
+import com.dai.llew.kalah.logging.GameDisplayer;
+import com.dai.llew.kalah.model.Game;
+import com.dai.llew.kalah.model.GameRunner;
+import com.dai.llew.kalah.model.Move;
+import com.dai.llew.kalah.model.Player;
 import com.dai.llew.kalah.responses.GameCreatedResponse;
 import com.dai.llew.kalah.responses.GameStatusResponse;
 import com.dai.llew.kalah.responses.MoveCompletedResponse;
-import com.dai.llew.kalah.store.GameStore;
+import com.dai.llew.kalah.service.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,125 +22,88 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
-import static com.dai.llew.kalah.logging.LogEvent.error;
-import static com.dai.llew.kalah.logging.LogEvent.info;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @RestController
 public class GamesController {
 
     @Autowired
-    private GameStore gameStore;
+    private GameRunner gameRunner;
 
+    @Autowired
+    private GameService gameService;
+
+    /**
+     * Create a new game
+     */
     @PostMapping("/games")
     @ResponseStatus(HttpStatus.CREATED)
     public GameCreatedResponse newGame() {
-        long gameID = createNewGame();
+        long gameID = gameService.createNewGame();
         return new GameCreatedResponse(gameID);
     }
 
+    /**
+     * Get all games.
+     */
     @GetMapping("/games")
     @ResponseStatus(HttpStatus.OK)
     public List<Game> getGames() {
-        return gameStore.getAllGames();
+        return gameService.getGames();
     }
 
+    /**
+     * Get the status of the specified game.
+     */
     @GetMapping("/games/{gameId}/status")
     @ResponseStatus(HttpStatus.OK)
-    public GameStatusResponse getStatus(@PathVariable long gameId) {
-        return new GameStatusResponse(getGameById(gameId));
+    public GameStatusResponse getStatus(@PathVariable int gameId) {
+        Game game = gameService.getGameById(gameId);
+        GameDisplayer.displayBoard(game);
+        return new GameStatusResponse(game);
     }
 
+    /**
+     * Get the pits for a given game.
+     */
     @GetMapping("/games/{gameId}/pits")
     @ResponseStatus(HttpStatus.OK)
-    public MoveCompletedResponse getPits(@PathVariable long gameId) {
-        Game game = getGameById(gameId);
+    public MoveCompletedResponse getPits(@PathVariable int gameId) {
+        Game game = gameService.getGameById(gameId);
+
+        GameDisplayer.displayBoard(game);
         return new MoveCompletedResponse(game);
     }
 
+    /**
+     * Execute a move.
+     */
     @PutMapping("/games/{gameId}/pits/{pitId}")
     @ResponseStatus(HttpStatus.OK)
     public MoveCompletedResponse move(@RequestHeader("Player-Id") String playerId,
-                                      @PathVariable long gameId,
+                                      @PathVariable int gameId,
                                       @PathVariable int pitId) {
         Player player = getPlayerByID(playerId);
-        Game game = getGameById(gameId);
-        executePlayerMove(game, player, pitId);
-        saveGame(game);
-        return new MoveCompletedResponse(game);
-    }
+        Game game = gameService.getGameById(gameId);
 
-    private long createNewGame() {
-        long id = gameStore.getNextGameID();
-        Game game = new Game(id);
-        saveGame(game);
-        info().gameID(game).log("new game created successfully");
-        return game.getId();
+        Move move = new Move(game, player, pitId);
+        gameRunner.executeMove(move);
+
+        gameRunner.isGameComplete(game);
+
+        gameService.saveGame(game);
+        return new MoveCompletedResponse(game);
     }
 
     private Player getPlayerByID(String playerId) {
         if (isEmpty(playerId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "no player id headrer provided");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "cannot determined player expected header Player-Id but none provided");
         }
 
         Player player = Player.getByID(playerId);
         if (player == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid player id header");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid Player-Id header");
         }
         return player;
-    }
-
-    private Game getGameById(long gameId) {
-        try {
-            return gameStore.getGameByID(gameId);
-        } catch (GameException ex) {
-            error().exception(ex)
-                    .gameID(gameId)
-                    .log("error getting game by id");
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        } catch (Exception ex) {
-            error().exception(ex)
-                    .gameID(gameId)
-                    .log("error getting game by id");
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    private void saveGame(Game game) {
-        try {
-            gameStore.saveGame(game);
-            info().gameID(game)
-                    .log("save game completed successfully");
-        } catch (Exception ex) {
-            error().gameID(game)
-                    .exception(ex)
-                    .log("error saving game");
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    private void executePlayerMove(Game game, Player player, int pitId) {
-        try {
-            info().gameID(game).player(player).pit(pitId).log("attempting to execute player move");
-            game.executePlayerMove(pitId, player);
-            game.checkForWinner();
-            info().gameID(game)
-                    .player(player)
-                    .pit(pitId)
-                    .log("player move completed successfully");
-        } catch (GameException ex) {
-            error().gameID(game)
-                    .player(player)
-                    .pit(pitId)
-                    .log(ex.getMessage());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        } catch (Exception ex) {
-            error().gameID(game)
-                    .player(player)
-                    .pit(pitId)
-                    .exception(ex)
-                    .log("error executing player move");
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 }

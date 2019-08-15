@@ -1,19 +1,20 @@
 package com.dai.llew.kalah.responses;
 
-import com.dai.llew.kalah.game.Game;
+import com.dai.llew.kalah.model.Game;
+import com.dai.llew.kalah.model.GameResult;
 
 public class GameStatusResponse {
 
     private long gameId;
     private String state;
     private String playerTurn;
-    private String lastMoveLog;
+    private GameResult result;
 
     public GameStatusResponse(Game game) {
         this.gameId = game.getId();
         this.state = game.getState().name();
         this.playerTurn = game.getCurrentPlayer().getId();
-        this.lastMoveLog = game.getLastMoveLog();
+        this.result = game.getResult();
     }
 
     public long getGameId() {
@@ -28,7 +29,7 @@ public class GameStatusResponse {
         return this.playerTurn;
     }
 
-    public String getLastMoveLog() {
-        return this.lastMoveLog;
+    public GameResult getResult() {
+        return this.result;
     }
 }

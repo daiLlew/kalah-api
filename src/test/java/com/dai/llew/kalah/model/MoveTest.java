@@ -1,7 +1,6 @@
-package com.dai.llew.kalah.game;
+package com.dai.llew.kalah.model;
 
 import com.dai.llew.kalah.exceptions.GameException;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -9,20 +8,15 @@ import java.util.List;
 
 import static java.text.MessageFormat.format;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class GameTest {
+public class MoveTest {
 
-    private Game game;
-
-    @Before
-    public void setUp() {
-        game = new Game(0, null, null);
-    }
-
-    @Test(expected = GameException.class)
+    @Test
     public void testIsValidPitChoice_playerNull() {
-        boolean result = game.isValidPitChoice(null, 0);
+        Move move = new Move(null, Player.ONE, 0);
+        assertThat(move.isValidPitChoice(), is(false));
     }
 
     @Test
@@ -64,13 +58,16 @@ public class GameTest {
         String errorFormat = "test isValidPitChoice player {0}, pitID {1} returned unexpected result";
 
         for (TestCase<Integer, Boolean> testCase : testCases) {
-            boolean result = game.isValidPitChoice(player, testCase.input());
+            Move move = new Move(null, player, testCase.input());
+
+            boolean result = move.isValidPitChoice();
+
             String errorMessage = format(errorFormat, player.name(), testCase.expected());
             assertThat(errorMessage, result, equalTo(testCase.expected()));
         }
     }
 
-    @Test
+/*    @Test
     public void testGetNextPitID() {
         List<TestCase<Integer, Integer>> cases = new ArrayList<TestCase<Integer, Integer>>() {{
             add(new TestCase<Integer, Integer>(-100, 1));
@@ -95,8 +92,10 @@ public class GameTest {
 
         String errorFormat = "test testGetNextPitID returned unexpected result for input: {0}";
         for (TestCase<Integer, Integer> tc : cases) {
+            Move move = new Move(null, null, 0);
+
             int nextID = game.getNextPitID(tc.input());
             assertThat(format(errorFormat, tc.input()), nextID, equalTo(tc.expected()));
         }
-    }
+    }*/
 }

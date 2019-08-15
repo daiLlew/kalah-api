@@ -25,7 +25,7 @@ public class Application {
         try {
             LogSerialiser serialiser = new JacksonLogSerialiser(true);
             LogStore logStore = new MDCLogStore(serialiser);
-            Logger logger = new LoggerImpl("kalah-game-api");
+            Logger logger = new LoggerImpl("kalah-model-api");
             config = new Builder()
                     .logStore(logStore)
                     .logger(logger)

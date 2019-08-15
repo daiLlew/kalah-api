@@ -1,4 +1,6 @@
-package com.dai.llew.kalah.game;
+package com.dai.llew.kalah.model;
+
+import com.dai.llew.kalah.exceptions.GameException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,8 +11,8 @@ import java.util.stream.Collectors;
 
 public class Pits extends ArrayList<Pit> {
 
-    private static Predicate<Pit> FILTER_P1_PITS = (p -> p.getId() >= 1 && p.getId() <= 6);
-    private static Predicate<Pit> FILTER_P2_PITS = (p -> p.getId() >= 7 && p.getId() <= 13);
+    private static final Predicate<Pit> FILTER_P1_PITS = (p -> p.getId() >= 1 && p.getId() <= 6);
+    private static final Predicate<Pit> FILTER_P2_PITS = (p -> p.getId() >= 8 && p.getId() <= 13);
 
     public Pits() {
         super(createPitList());
@@ -36,7 +38,7 @@ public class Pits extends ArrayList<Pit> {
     public boolean isPitEmpty(int pitId) {
         Pit pit = getPitByID(pitId);
         if (pit == null)
-            throw new RuntimeException("invalid pit id");
+            throw new GameException("invalid pit id");
 
         return pit.isEmpty();
     }
