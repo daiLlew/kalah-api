@@ -126,3 +126,4 @@ Pits:
 
         (1,0)  (2,7)  (3,7)  (4,7)  (5,7)  (6,7)
 ```
+The format is `($PIT_ID, $STONE_COUNT)` -> `(1,0)` Pit 1 has 0 stones.
