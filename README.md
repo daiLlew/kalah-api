@@ -93,7 +93,7 @@ invalid header is provided you will get a resopnse similar to:
 }
 ````
 A player can only execute a move successfully on their turn. If you attempt to make a move during the other players 
-turn you'll get an error response similar to:
+turn or you make an invalid move you'll get an error response similar to:
 
 ````json
 {
